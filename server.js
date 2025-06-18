@@ -22,6 +22,14 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+// Add this to server.js before your routes
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
+
 // Serve static files from public directory
 app.use(express.static('public'));
 
@@ -37,6 +45,7 @@ app.post('/upload', upload.single('zipfile'), (req, res) => {
 app.get('/files', (req, res) => {
   fs.readdir('uploads/', (err, files) => {
     if (err) {
+      console.error('Error reading files:', err);
       return res.status(500).send('Error reading files.');
     }
     res.json(files.filter(file => file.endsWith('.zip')));
